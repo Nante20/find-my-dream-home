@@ -62,4 +62,29 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     });
   }
+  // Validation formulaire ajout d'annonce
+  let addForm = document.getElementById("addForm");
+  if (addForm) {
+    addForm.addEventListener("submit", function (e) {
+      let image = document.getElementById("image").value.trim();
+      let titre = document.getElementById("titre").value.trim();
+      let prix = document.getElementById("prix").value.trim();
+      let ville = document.getElementById("ville").value.trim();
+      let description = document.getElementById("description").value.trim();
+      let type = document.getElementById("type").value.trim();
+      let clientError = document.getElementById("clientError");
+
+      clientError.textContent = "";
+      let errors = [];
+
+      if (!image || !titre || !prix || !ville || !description || !type) {
+        errors.push("Veuillez remplir tous les champs.");
+      }
+
+      if (errors.length > 0) {
+        clientError.textContent = errors.join(" ");
+        e.preventDefault();
+      }
+    });
+  }
 });

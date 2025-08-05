@@ -13,6 +13,7 @@
             <a href="register.php">Register</a>
             <a href="index.php">House</a>
             <a href="index.php">Appartement</a>
+            <a href="add.php">Add</a>
         </div>
     </nav>
 </header>
