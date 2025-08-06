@@ -1,11 +1,18 @@
-<?php include 'header.php'; ?>
 
+<?php
+include 'header.php';
+?>
+<?php include 'header.php'; ?>
 <div class="container">
     <h1>Connexion à Find My Dream Home</h1>
 
 <?php
 $erreur = "";
 $success = "";
+
+// Simuler un utilisateur existant
+$valid_email = "nata@gmail.com";
+$valid_password = "123456"; // minimum 6 caractères
 
 // Validation côté serveur
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
@@ -18,8 +25,16 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $erreur = "L'adresse email est invalide.";
     } elseif (strlen($password) < 6) {
         $erreur = "Le mot de passe doit contenir au moins 6 caractères.";
+    } elseif ($email === $valid_email && $password === $valid_password) {
+        // ✅ Connexion réussie → enregistrer en session
+        $_SESSION['loggedin'] = true;
+        $_SESSION['email'] = $email;
+
+        // Redirection vers la page d'accueil
+        header("Location: index.php");
+        exit;
     } else {
-        $success = "✅ Connexion réussie ! (Données valides)";
+        $erreur = "Identifiants incorrects.";
     }
 }
 ?>
@@ -48,6 +63,3 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 </div>
 
 <?php include 'footer.php'; ?>
-
-
-

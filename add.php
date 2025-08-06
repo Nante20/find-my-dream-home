@@ -1,3 +1,11 @@
+<?php
+session_start();
+if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
+    header("Location: login.php");
+    exit;
+}
+?>
+
 <?php include 'header.php'; ?>
 
 <div class="container">
@@ -15,8 +23,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $ville = trim($_POST['ville']);
     $description = trim($_POST['description']);
     $type = trim($_POST['type']);
+    $propertyType = trim($_POST['propertyType']); 
 
-    if (empty($image) || empty($titre) || empty($prix) || empty($ville) || empty($description) || empty($type)) {
+    if (empty($image) || empty($titre) || empty($prix) || empty($ville) || empty($description) || empty($type) || empty($propertyType)) {
         $erreur = "Veuillez remplir tous les champs.";
     } else {
         $success = "✅ Annonce ajoutée avec succès (pas encore sauvegardée en base).";
@@ -30,7 +39,7 @@ if (!empty($success)) {
     echo "<p class='success'>$success</p>";
 }
 ?>
-
+<div>
     <form id="addForm" method="post">
         <label for="image">URL de l'image :</label>
         <input type="url" id="image" name="image" value="<?= isset($image) ? htmlspecialchars($image) : '' ?>" required>
@@ -53,6 +62,14 @@ if (!empty($success)) {
             <option value="Rent" <?= (isset($type) && $type === "Rent") ? 'selected' : '' ?>>Rent</option>
             <option value="Sale" <?= (isset($type) && $type === "Sale") ? 'selected' : '' ?>>Sale</option>
         </select>
+
+        <label for="propertyType">propertyType :</label>
+        <select id="propertyType" name="propertyType" required>
+            <option value="">-- Sélectionner --</option>
+            <option value="House" <?= (isset($type) && $type === "House") ? 'selected' : '' ?>>House</option>
+            <option value="Appartment" <?= (isset($type) && $type === "Appartment") ? 'selected' : '' ?>>Apartment</option>
+        </select>
+
 
         <div id="clientError" class="error"></div>
 

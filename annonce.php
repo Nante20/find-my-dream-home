@@ -5,5 +5,6 @@
     <p><strong>Ville :</strong> <?= $item['ville'] ?></p>
     <p><?= $item['description'] ?></p>
     <p class="type"><?= $item['type'] ?></p>
+    <p class="propertyType"><?= $item['propertyType'] ?></p>
     <button>Contact</button>
 </div>

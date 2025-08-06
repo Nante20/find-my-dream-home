@@ -1,3 +1,11 @@
+<?php
+// header.php
+session_start();
+?>
+<?php if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true): ?>
+    <a href="logout.php">Déconnexion</a>
+<?php endif; ?>
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -15,6 +23,7 @@
             <a href="index.php">House</a>
             <a href="index.php">Appartement</a>
             <a href="add.php">Add</a>
+            <a href="logout.php">Logout</a>
         </div>
     </nav>
 </header>
