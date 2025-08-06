@@ -7,7 +7,8 @@ $maisons = [
         "prix" => 350000,
         "ville" => "Lyon",
         "description" => "Maison lumineuse avec jardin et garage.",
-        "type" => "Sale"
+        "type" => "Sale",
+        "propertyType" => "Maison"
     ],
     [
         "image" => "images/maison2.jpg",
@@ -15,7 +16,8 @@ $maisons = [
         "prix" => 550000,
         "ville" => "Marseille",
         "description" => "Vue imprenable sur la Méditerranée.",
-        "type" => "Sale"
+        "type" => "Sale",
+        "propertyType" => "Maison"
     ],
     [
         "image" => "images/maison3.jpg",
@@ -23,7 +25,8 @@ $maisons = [
         "prix" => 420000,
         "ville" => "Toulouse",
         "description" => "Idéale pour une famille nombreuse.",
-        "type" => "Sale"
+        "type" => "Sale",
+        "propertyType" => "Maison"
     ]
 ];
 
@@ -35,7 +38,8 @@ $appartements = [
         "prix" => 850,
         "ville" => "Paris",
         "description" => "Proche métro et commerces.",
-        "type" => "Rent"
+        "type" => "Rent",
+        "propertyType" => "Appartement"
     ],
     [
         "image" => "images/appartement2.jpg",
@@ -43,7 +47,8 @@ $appartements = [
         "prix" => 650,
         "ville" => "Montpellier",
         "description" => "Parfait pour étudiant.",
-        "type" => "Rent"
+        "type" => "Rent",
+        "propertyType" => "Appartement"
     ],
     [
         "image" => "images/appartement3.jpg",
@@ -51,7 +56,8 @@ $appartements = [
         "prix" => 1200,
         "ville" => "Bordeaux",
         "description" => "Lumineux avec balcon.",
-        "type" => "Rent"
+        "type" => "Rent",
+         "propertyType" => "Appartement"
     ]
 ];
 ?>
