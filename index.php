@@ -1,32 +1,42 @@
 <?php
 session_start();
 if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
-    header("Location: login.php");
+    header("Location: pages/login.php");
     exit;
 }
+
+// Connexion BDD
+require __DIR__ . '/config/database.php';
+
+// Récupération des annonces avec jointures
+$sql = "SELECT 
+            l.id,
+            l.title,
+            l.price,
+            l.city,
+            l.description,
+            l.image,
+            p.name AS propertyType,
+            t.name AS transactionType
+        FROM listing l
+        JOIN propertyType p ON l.propertyType_id = p.id
+        JOIN transactionType t ON l.transactionType_id = t.id
+        ORDER BY l.id DESC";
+$stmt = $pdo->query($sql);
+$listings = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+include __DIR__ . '/includes/header.php';
 ?>
 
-<?php
-require 'data.php';
-include 'header.php';
-?>
 <div class="container">
 
-    <!-- Maisons -->
-    <h2>Nos annonces de maison</h2>
+    <h2>Nos annonces</h2>
     <div class="annonces">
-        <?php foreach ($maisons as $item): ?>
-            <?php include 'annonce.php'; ?>
-        <?php endforeach; ?>
-    </div>
-
-    <!-- Appartements -->
-    <h2>Nos annonces d'appartements</h2>
-    <div class="annonces">
-        <?php foreach ($appartements as $item): ?>
-            <?php include 'annonce.php'; ?>
+        <?php foreach ($listings as $item): ?>
+            <?php include __DIR__ . '/includes/annonce.php'; ?>
         <?php endforeach; ?>
     </div>
 
 </div>
-<?php include 'footer.php'; ?>
+
+<?php include __DIR__ . '/includes/footer.php'; ?>

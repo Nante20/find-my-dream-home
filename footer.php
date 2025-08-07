@@ -1,4 +1,0 @@
-<footer>
-    © 2025 Find My Dream Home – Tous droits réservés.
-</footer>
-
