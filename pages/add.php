@@ -1,85 +1,130 @@
 <?php
 session_start();
-if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
-    header("Location: /pages/login.php");
+
+if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true || !in_array($_SESSION['role'], ['agent', 'admin'])) {
+    $_SESSION['error'] = "Vous n'avez pas l'autorisation d'accéder à cette page.";
+    header("Location: /index.php");
     exit;
 }
-?>
 
-<?php include __DIR__ . '/../includes/header.php'; 
-      require __DIR__ . '/../config/database.php';
+require __DIR__ . '/../config/database.php';
+include __DIR__ . '/../includes/header.php';
 
+$transactionTypes = $pdo->query("SELECT * FROM transactionType")->fetchAll(PDO::FETCH_ASSOC);
+$propertyTypes = $pdo->query("SELECT * FROM propertyType")->fetchAll(PDO::FETCH_ASSOC);
+
+$erreur = "";
+$success = "";
+
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
+    $titre = trim($_POST['titre']);
+    $prix = (int) $_POST['prix'];
+    $ville = trim($_POST['ville']);
+    $description = trim($_POST['description']);
+    $type = (int) $_POST['type'];
+    $property = (int) $_POST['propertyType'];
+
+    // Vérifie l'image
+    if (!isset($_FILES['image']) || $_FILES['image']['error'] !== 0) {
+        $erreur = "Erreur lors de l'upload de l'image.";
+    } else {
+        $allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
+        $maxSize = 2 * 1024 * 1024; // 2 Mo
+
+        $fileTmpPath = $_FILES['image']['tmp_name'];
+        $fileName = basename($_FILES['image']['name']);
+        $fileSize = $_FILES['image']['size'];
+        $fileType = mime_content_type($fileTmpPath);
+
+        if (!in_array($fileType, $allowedTypes)) {
+            $erreur = "Seules les images JPG, PNG ou GIF sont autorisées.";
+        } elseif ($fileSize > $maxSize) {
+            $erreur = "Image trop grande (max 2 Mo).";
+        } else {
+            $uploadDir = __DIR__ . '/../public/uploads/';
+            if (!is_dir($uploadDir)) {
+                mkdir($uploadDir, 0755, true);
+            }
+
+            $targetPath = $uploadDir . $fileName;
+            $relativePath = 'public/uploads/' . $fileName;
+
+            if (move_uploaded_file($fileTmpPath, $targetPath)) {
+                // Tout est bon, insertion
+                $sql = "INSERT INTO listing (title, price, city, description, image, transactionType_id, propertyType_id, user_id)
+                        VALUES (:title, :price, :city, :description, :image, :transactionType, :propertyType, :user_id)";
+                $stmt = $pdo->prepare($sql);
+                $stmt->execute([
+                    'title' => $titre,
+                    'price' => $prix,
+                    'city' => $ville,
+                    'description' => $description,
+                    'image' => $relativePath,
+                    'transactionType' => $type,
+                    'propertyType' => $property,
+                    'user_id' => $_SESSION['user_id']
+                ]);
+
+                $success = "✅ Annonce ajoutée avec succès !";
+            } else {
+                $erreur = "Erreur lors de l'enregistrement de l'image.";
+            }
+        }
+    }
+}
 ?>
 
 <div class="container">
     <h1>Ajouter une annonce</h1>
 
-<?php
-$erreur = "";
-$success = "";
+    <?php if (!empty($erreur)): ?>
+        <p class="error"><?= $erreur ?></p>
+    <?php endif; ?>
 
-// Validation côté serveur
-if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    $image = trim($_POST['image']);
-    $titre = trim($_POST['titre']);
-    $prix = trim($_POST['prix']);
-    $ville = trim($_POST['ville']);
-    $description = trim($_POST['description']);
-    $type = trim($_POST['type']);
-    $propertyType = trim($_POST['propertyType']); 
+    <?php if (!empty($success)): ?>
+        <p class="success"><?= $success ?></p>
+    <?php endif; ?>
 
-    if (empty($image) || empty($titre) || empty($prix) || empty($ville) || empty($description) || empty($type) || empty($propertyType)) {
-        $erreur = "Veuillez remplir tous les champs.";
-    } else {
-        $success = "✅ Annonce ajoutée avec succès (pas encore sauvegardée en base).";
-    }
-}
+    <form method="post" enctype="multipart/form-data">
+        <label>Image :</label>
+        <input type="file" name="image" accept="image/*" required>
 
-if (!empty($erreur)) {
-    echo "<p class='error'>$erreur</p>";
-}
-if (!empty($success)) {
-    echo "<p class='success'>$success</p>";
-}
-?>
-<div>
-    <form id="addForm" method="post">
-        <label for="image">URL de l'image :</label>
-        <input type="url" id="image" name="image" value="<?= isset($image) ? htmlspecialchars($image) : '' ?>" required>
+        <label>Titre :</label>
+        <input type="text" name="titre" value="<?= isset($titre) ? htmlspecialchars($titre) : '' ?>" required>
 
-        <label for="titre">Titre :</label>
-        <input type="text" id="titre" name="titre" value="<?= isset($titre) ? htmlspecialchars($titre) : '' ?>" required>
+        <label>Prix :</label>
+        <input type="number" name="prix" value="<?= isset($prix) ? htmlspecialchars($prix) : '' ?>" required>
 
-        <label for="prix">Prix :</label>
-        <input type="text" id="prix" name="prix" value="<?= isset($prix) ? htmlspecialchars($prix) : '' ?>" required>
+        <label>Ville :</label>
+        <input type="text" name="ville" value="<?= isset($ville) ? htmlspecialchars($ville) : '' ?>" required>
 
-        <label for="ville">Ville :</label>
-        <input type="text" id="ville" name="ville" value="<?= isset($ville) ? htmlspecialchars($ville) : '' ?>" required>
+        <label>Description :</label>
+        <textarea name="description" required><?= isset($description) ? htmlspecialchars($description) : '' ?></textarea>
 
-        <label for="description">Description courte :</label>
-        <textarea id="description" name="description" required><?= isset($description) ? htmlspecialchars($description) : '' ?></textarea>
-
-        <label for="type">Type :</label>
-        <select id="type" name="type" required>
-            <option value="">-- Sélectionner --</option>
-            <option value="Rent" <?= (isset($type) && $type === "Rent") ? 'selected' : '' ?>>Rent</option>
-            <option value="Sale" <?= (isset($type) && $type === "Sale") ? 'selected' : '' ?>>Sale</option>
+        <label>Type de transaction :</label>
+        <select name="type" required>
+            <option value="">-- Select --</option>
+            <?php foreach ($transactionTypes as $t): ?>
+                <option value="<?= $t['id'] ?>" <?= (isset($type) && $type == $t['id']) ? 'selected' : '' ?>>
+                    <?= htmlspecialchars($t['name']) ?>
+                </option>
+            <?php endforeach; ?>
         </select>
 
-        <label for="propertyType">propertyType :</label>
-        <select id="propertyType" name="propertyType" required>
-            <option value="">-- Sélectionner --</option>
-            <option value="House" <?= (isset($type) && $type === "House") ? 'selected' : '' ?>>House</option>
-            <option value="Appartment" <?= (isset($type) && $type === "Appartment") ? 'selected' : '' ?>>Appartment</option>
+        <label>Type de bien :</label>
+        <select name="propertyType" required>
+            <option value="">-- Select --</option>
+            <?php foreach ($propertyTypes as $p): ?>
+                <option value="<?= $p['id'] ?>" <?= (isset($property) && $property == $p['id']) ? 'selected' : '' ?>>
+                    <?= htmlspecialchars($p['name']) ?>
+                </option>
+            <?php endforeach; ?>
         </select>
 
-
-        <div id="clientError" class="error"></div>
-
-        <button type="submit">Enregistrer</button>
+        <button type="submit">Save</button>
     </form>
 
-    <p><a href="/index.php">Retour à l'accueil</a></p>
+    <p><a href="/index.php">← Back to home</a></p>
 </div>
 
 <?php include __DIR__ . '/../includes/footer.php'; ?>

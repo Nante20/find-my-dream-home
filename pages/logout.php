@@ -2,5 +2,7 @@
 session_start();
 session_unset();
 session_destroy();
-header("Location: /login.php");
+
+// Redirection vers la page de login
+header("Location: /pages/login.php");
 exit;

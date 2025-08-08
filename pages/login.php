@@ -1,60 +1,64 @@
-
 <?php
-include __DIR__ . '/../includes/header.php';
+session_start();
 require __DIR__ . '/../config/database.php';
+include __DIR__ . '/../includes/header.php';
 ?>
+
 <div class="container">
     <h1>Connexion à Find My Dream Home</h1>
 
-<?php
-$erreur = "";
-$success = "";
+    <?php
+    $erreur = "";
 
-// Simuler un utilisateur existant
-$valid_email = "nata@gmail.com";
-$valid_password = "123456"; // minimum 6 caractères
+    if ($_SERVER["REQUEST_METHOD"] === "POST") {
+        $email = htmlspecialchars(trim($_POST['email']));
+        $password = htmlspecialchars(trim($_POST['password']));
 
-// Validation côté serveur
-if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    $email = htmlspecialchars(trim($_POST['email']));
-    $password = htmlspecialchars(trim($_POST['password']));
+        if (empty($email) || empty($password)) {
+            $erreur = "Veuillez remplir tous les champs.";
+        } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $erreur = "L'adresse email est invalide.";
+        } else {
+            // Vérification en BDD
+            $sql = "SELECT * FROM user WHERE email = :email AND password = :password";
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute([
+                'email' => $email,
+                'password' => $password // pas de hash ici pour l'instant
+            ]);
 
-    if (empty($email) || empty($password)) {
-        $erreur = "Veuillez remplir tous les champs.";
-    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        $erreur = "L'adresse email est invalide.";
-    } elseif (strlen($password) < 6) {
-        $erreur = "Le mot de passe doit contenir au moins 6 caractères.";
-    } elseif ($email === $valid_email && $password === $valid_password) {
-        // ✅ Connexion réussie → enregistrer en session
-        $_SESSION['loggedin'] = true;
-        $_SESSION['email'] = $email;
+            $user = $stmt->fetch();
 
-        // Redirection vers la page d'accueil
-        header("Location: ../index.php");
-        exit;
-    } else {
-        $erreur = "Identifiants incorrects.";
+            if ($user) {
+                $_SESSION['loggedin'] = true;
+                $_SESSION['user_id'] = $user['id'];
+                $_SESSION['email'] = $user['email'];
+                $_SESSION['role'] = $user['role'];
+                
+// Charger les favoris de l'utilisateur connecté
+$favStmt = $pdo->prepare("SELECT listing_id FROM favorite WHERE user_id = ?");
+$favStmt->execute([$user['id']]);
+$_SESSION['favorites'] = array_column($favStmt->fetchAll(PDO::FETCH_ASSOC), 'listing_id');
+
+                header("Location: /index.php");
+                exit;
+            } else {
+                $erreur = "Identifiants incorrects.";
+            }
+        }
     }
-}
-?>
 
-<?php if (!empty($erreur)): ?>
-    <div class="error"><?= $erreur ?></div>
-<?php endif; ?>
+    if (!empty($erreur)) {
+        echo "<div class='error'>$erreur</div>";
+    }
+    ?>
 
-<?php if (!empty($success)): ?>
-    <div class="success"><?= $success ?></div>
-<?php endif; ?>
-
-    <form id="loginForm" action="" method="post">
+    <form action="" method="post">
         <label for="email">Email :</label>
-        <input type="email" id="email" name="email" value="<?= isset($email) ? $email : '' ?>" required>
+        <input type="email" id="email" name="email" required>
 
         <label for="password">Mot de passe :</label>
         <input type="password" id="password" name="password" required>
-
-        <div id="clientError" class="error"></div>
 
         <button type="submit">Se connecter</button>
     </form>

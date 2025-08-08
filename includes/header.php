@@ -1,32 +1,30 @@
 <?php
 session_start();
+$isLoggedIn = isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true;
 ?>
-<?php
-    $isLoggedIn = isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true;
-?>
-
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>Find My Dream Home</title>
-    <link rel="stylesheet" href="../assets/css/style.css">
-    <script src="../assets/js/script.js" defer></script>
+    <link rel="stylesheet" href="/assets/css/style.css">
+    <script src="/assets/js/script.js" defer></script>
 </head>
 <header>
-        <nav>
+    <nav>
         <div class="nav-left">Find My Dream Home</div>
         <div class="nav-right">
-             <?php if (!$isLoggedIn): ?>
-                <a href="login.php">Login</a>
+            <?php if (!$isLoggedIn): ?>
+                <a href="/pages/login.php">Login</a>
+                <a href="/pages/register.php">Register</a>
             <?php else: ?>
-                <a href="logout.php">Logout</a>
+                <a href="/pages/logout.php">Logout</a>
+                <a href="/pages/add.php">Add</a>
+                <a href="/pages/favorites.php">Favorites</a>
             <?php endif; ?>
-            <a href="../pages/register.php">Register</a>
-            <a href="../index.php">House</a>
-            <a href="../index.php">Appartement</a>
-            <a href="../pages/add.php">Add</a>
-            
+
+            <a href="/index.php?type=house">House</a>
+            <a href="/index.php?type=apartment">Apartment</a>
         </div> 
     </nav>
 </header>
