@@ -131,10 +131,55 @@ form button {
   margin-top: 10px;
 }
 
+.btn-edit {
+    display: inline-block;
+    margin-top: 10px;
+    padding: 6px 12px;
+    background-color: #3498db;
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    transition: background-color 0.3s ease;
+}
+
+.btn-edit:hover {
+    background-color: #2c80b4;
+}
+.btn-delete {
+    display: inline-block;
+    margin-left: 10px;
+    background-color: #e74c3c;
+    color: white;
+    padding: 6px 10px;
+    border-radius: 4px;
+    text-decoration: none;
+}
+
+.btn-delete:hover {
+    background-color: #c0392b;
+}
+
 
 @media screen and (max-width: 768px)
 {header nav {
 font-size: small;
 }
 
+}
+.btn-fav {
+    background-color: #f9f9f9;
+    color: #b14880;
+    border: 2px solid #b14880;
+    padding: 8px 12px;
+    border-radius: 5px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 10px;
+}
+
+.btn-fav:hover {
+    background-color: #b14880;
+    color: white;
 }
