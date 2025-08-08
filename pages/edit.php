@@ -45,7 +45,24 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $prix = (int) $_POST['prix'];
     $ville = htmlspecialchars(trim($_POST['ville']));
     $description = htmlspecialchars(trim($_POST['description']));
-    $image = htmlspecialchars(trim($_POST['image']));
+    $image = $annonce['image']; // Valeur par défaut = image actuelle
+
+if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
+    $uploadDir = '../public/uploads/';
+    $fileName = uniqid() . '_' . basename($_FILES['image']['name']);
+    $uploadPath = $uploadDir . $fileName;
+
+    // Vérifie que le dossier existe
+    if (!is_dir($uploadDir)) {
+        mkdir($uploadDir, 0777, true);
+    }
+
+    // Déplace le fichier
+    if (move_uploaded_file($_FILES['image']['tmp_name'], $uploadPath)) {
+        $image = 'public/uploads/' . $fileName;
+    }
+}
+
     $type = (int) $_POST['transactionType'];
     $property = (int) $_POST['propertyType'];
 
@@ -69,7 +86,7 @@ include __DIR__ . '/../includes/header.php';
 <div class="container">
     <h1>Modifier l'annonce</h1>
 
-    <form method="post">
+    <form method="post" enctype="multipart/form-data">
         <label>Titre :</label>
         <input type="text" name="titre" value="<?= htmlspecialchars($annonce['title']) ?>" required>
 
@@ -82,8 +99,11 @@ include __DIR__ . '/../includes/header.php';
         <label>Description :</label>
         <textarea name="description" required><?= htmlspecialchars($annonce['description']) ?></textarea>
 
-        <label>Image (URL) :</label>
-        <input type="text" name="image" value="<?= htmlspecialchars($annonce['image']) ?>" required>
+        <label>Image actuelle :</label>
+        <img src="/<?= ltrim($annonce['image'], '/') ?>" alt="Image actuelle" style="width:150px;"><br><br>
+
+        <label>Nouvelle image (laisser vide si inchangé) :</label>
+        <input type="file" name="image" accept="image/*">
 
         <label>Type de transaction :</label>
         <select name="transactionType" required>

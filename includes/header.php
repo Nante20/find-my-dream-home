@@ -23,8 +23,8 @@ $isLoggedIn = isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true;
                 <a href="/pages/favorites.php">Favorites</a>
             <?php endif; ?>
 
-            <a href="/index.php?type=house">House</a>
-            <a href="/index.php?type=apartment">Apartment</a>
+            <a href="/pages/house.php">House</a>
+            <a href="/pages/appartment.php">Apartment</a>
         </div> 
     </nav>
 </header>
